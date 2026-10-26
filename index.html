@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Juego del Intruso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- BARRA SUPERIOR DE JUEGO (ENTORNO DE USUARIO FINAL LIMPIO) -->
+  <header class="top-bar">
+    <div class="brand-block">
+      <span class="brand-logo">🎭</span>
+      <h1>EL JUEGO DEL INTRUSO</h1>
+    </div>
+
+    <div class="top-controls">
+      <div class="control-group" title="Elige si quieres rol al azar, ser siempre Inocente o siempre Intruso">
+        <label for="select-role-mode">Tu Rol:</label>
+        <select id="select-role-mode">
+          <option value="random" selected>🎲 Aleatorio</option>
+          <option value="always_innocent">🛡️ Inocente</option>
+          <option value="always_intruder">🎭 Intruso</option>
+        </select>
+      </div>
+
+      <div class="control-group" title="Velocidad de intervención de los monstruos">
+        <label for="select-pacing">Ritmo:</label>
+        <select id="select-pacing">
+          <option value="cinematic" selected>🎬 Normal</option>
+          <option value="step">✋ Paso a Paso</option>
+          <option value="fast">⚡ Rápido</option>
+        </select>
+      </div>
+
+      <div class="control-group" title="Ambiente de la sala de juego">
+        <label for="select-scene">Sala:</label>
+        <select id="select-scene">
+          <option value="velvet-club" selected>🍷 Club Secreto</option>
+          <option value="cyber-lab">🔮 Lab Neón</option>
+          <option value="tavern-wood">🕯️ Taberna</option>
+          <option value="detective-bunker">🕵️ Búnker Noir</option>
+        </select>
+      </div>
+
+      <label class="toggle-pill music-toggle" title="Activar o desactivar la música de fondo">
+        <input type="checkbox" id="toggle-music" checked />
+        <span id="music-toggle-label">🎵 Música</span>
+      </label>
+
+      <label class="toggle-pill sound-toggle" title="Activar o silenciar las voces y efectos de sonido">
+        <input type="checkbox" id="toggle-sound" checked />
+        <span id="sound-toggle-label">🔊 Voces</span>
+      </label>
+
+      <button id="btn-new-game" class="btn-primary">
+        🎲 Jugar
+      </button>
+    </div>
+  </header>
+
+  <!-- ESCENARIO PRINCIPAL DE JUEGO -->
+  <main class="main-layout">
+    <section id="table-stage" class="table-stage scene-velvet-club">
+      <!-- CAPA DE CELEBRACIÓN Y CONFETI DE FIN DE PARTIDA -->
+      <div id="finale-confetti-layer" class="finale-confetti-layer hidden"></div>
+
+      <!-- BANDA DE NARRADOR Y BOTÓN DE PASO A PASO / PAUSA / RESOLVER -->
+      <div class="stage-narrator-bar">
+        <div id="game-status-banner" class="game-status-banner">
+          Pulsa «🎲 Jugar» arriba a la derecha para repartir las cartas en la mesa.
+        </div>
+        <div class="pacing-action-controls">
+          <button id="btn-resolve-bar" class="btn-resolve-now hidden" title="Resolver inmediatamente el desenlace de la partida">
+            ⚡ Resolver la Partida
+          </button>
+          <button id="btn-pause-toggle" class="btn-step hidden" title="Pausar o reanudar la partida">
+            ⏸️ Pausar
+          </button>
+          <button id="btn-next-step" class="btn-step btn-step-highlight hidden" title="Avanzar al siguiente turno (Espacio)">
+            ▶ Siguiente
+          </button>
+        </div>
+      </div>
+
+      <!-- ZONA DE LOS 4 MONSTRUOS SENTADOS ALREDEDOR DE LA MESA -->
+      <div class="monsters-around-table">
+        <!-- MONSTRUO 1: BUBA -->
+        <article id="monster-card-buba" class="monster-seat seat-left" data-emotion="normal">
+          <div class="bubble-slot">
+            <div id="bubble-buba" class="speech-bubble bubble-buba hidden"></div>
+          </div>
+          <div class="sprite-stage">
+            <div class="seat-spotlight"></div>
+            <span id="turn-badge-buba" class="seat-turn-badge hidden">#1</span>
+            <div id="vote-badge-buba" class="vote-target-badge hidden"></div>
+            <img id="sprite-buba" src="assets/sprites/buba_normal_1.png" alt="Buba" class="monster-sprite" />
+          </div>
+          <div class="monster-plate">
+            <div class="monster-name-row">
+              <span class="monster-dot" style="background:#3b82f6"></span>
+              <strong>Buba</strong>
+              <span class="monster-sub">Peludo Azul</span>
+            </div>
+            <span id="emotion-badge-buba" class="emotion-badge emotion-normal">😊 Normal</span>
+          </div>
+          <div id="chips-buba" class="monster-chips-row"></div>
+        </article>
+
+        <!-- MONSTRUO 2: KIKO -->
+        <article id="monster-card-kiko" class="monster-seat seat-top-left" data-emotion="normal">
+          <div class="bubble-slot">
+            <div id="bubble-kiko" class="speech-bubble bubble-kiko hidden"></div>
+          </div>
+          <div class="sprite-stage">
+            <div class="seat-spotlight"></div>
+            <span id="turn-badge-kiko" class="seat-turn-badge hidden">#2</span>
+            <div id="vote-badge-kiko" class="vote-target-badge hidden"></div>
+            <img id="sprite-kiko" src="assets/sprites/kiko_normal_1.png" alt="Kiko" class="monster-sprite" />
+          </div>
+          <div class="monster-plate">
+            <div class="monster-name-row">
+              <span class="monster-dot" style="background:#f97316"></span>
+              <strong>Kiko</strong>
+              <span class="monster-sub">Tres Ojos</span>
+            </div>
+            <span id="emotion-badge-kiko" class="emotion-badge emotion-normal">😊 Normal</span>
+          </div>
+          <div id="chips-kiko" class="monster-chips-row"></div>
+        </article>
+
+        <!-- MONSTRUO 3: MOMO -->
+        <article id="monster-card-momo" class="monster-seat seat-top-right" data-emotion="normal">
+          <div class="bubble-slot">
+            <div id="bubble-momo" class="speech-bubble bubble-momo hidden"></div>
+          </div>
+          <div class="sprite-stage">
+            <div class="seat-spotlight"></div>
+            <span id="turn-badge-momo" class="seat-turn-badge hidden">#3</span>
+            <div id="vote-badge-momo" class="vote-target-badge hidden"></div>
+            <img id="sprite-momo" src="assets/sprites/momo_normal_1.png" alt="Momo" class="monster-sprite" />
+          </div>
+          <div class="monster-plate">
+            <div class="monster-name-row">
+              <span class="monster-dot" style="background:#ec4899"></span>
+              <strong>Momo</strong>
+              <span class="monster-sub">Antenitas</span>
+            </div>
+            <span id="emotion-badge-momo" class="emotion-badge emotion-normal">😊 Normal</span>
+          </div>
+          <div id="chips-momo" class="monster-chips-row"></div>
+        </article>
+
+        <!-- MONSTRUO 4: ZORG -->
+        <article id="monster-card-zorg" class="monster-seat seat-right" data-emotion="normal">
+          <div class="bubble-slot">
+            <div id="bubble-zorg" class="speech-bubble bubble-zorg hidden"></div>
+          </div>
+          <div class="sprite-stage">
+            <div class="seat-spotlight"></div>
+            <span id="turn-badge-zorg" class="seat-turn-badge hidden">#4</span>
+            <div id="vote-badge-zorg" class="vote-target-badge hidden"></div>
+            <img id="sprite-zorg" src="assets/sprites/zorg_normal_1.png" alt="Zorg" class="monster-sprite" />
+          </div>
+          <div class="monster-plate">
+            <div class="monster-name-row">
+              <span class="monster-dot" style="background:#ef4444"></span>
+              <strong>Zorg</strong>
+              <span class="monster-sub">El Cíclope</span>
+            </div>
+            <span id="emotion-badge-zorg" class="emotion-badge emotion-normal">😊 Normal</span>
+          </div>
+          <div id="chips-zorg" class="monster-chips-row"></div>
+        </article>
+      </div>
+
+      <!-- MESA DE JUEGO COMPARTIDA -->
+      <div class="shared-game-table">
+        <div class="table-felt-inner">
+          <div class="table-bottom-grid">
+            <!-- COLUMNA IZQUIERDA: TU CARTA SECRETA -->
+            <div id="human-secret-card" class="human-secret-card role-innocent">
+              <div class="secret-card-header">
+                <span id="secret-role-title">🃏 TU CARTA SECRETA</span>
+                <span id="turn-badge-human" class="human-turn-pill">Sentado a la mesa</span>
+              </div>
+              <div id="secret-role-word" class="secret-role-word">
+                Pulsa «🎲 Jugar»
+              </div>
+              <p id="secret-role-hint" class="secret-role-hint">
+                Descubre quién es el Intruso entre los monstruos o engáñales si te toca a ti.
+              </p>
+            </div>
+
+            <!-- COLUMNA DERECHA: ACCIÓN DEL TURNO ACTUAL -->
+            <div class="table-action-zone">
+              <!-- Estado de espera / escuchando -->
+              <div id="panel-table-idle" class="action-card action-idle">
+                <div class="idle-status-row">
+                  <span class="idle-icon">🎙️</span>
+                  <div class="idle-text-wrap">
+                    <h3 id="idle-title">Mesa lista para empezar</h3>
+                    <p id="idle-subtitle">
+                      Pulsa «🎲 Jugar» para repartir la palabra secreta y escuchar a los monstruos.
+                    </p>
+                  </div>
+                  <button type="button" id="btn-resolve-idle" class="btn-resolve-now hidden">
+                    ⚡ Resolver la Partida
+                  </button>
+                </div>
+                <div id="human-chips-row" class="human-chips-row"></div>
+              </div>
+
+              <!-- 1. Turno de Pista del Humano -->
+              <div id="panel-human-clue" class="action-card action-active hidden">
+                <h3>🎯 ¡Es tu turno! Di una palabra relacionada</h3>
+                <form id="human-clue-form" class="inline-action-form">
+                  <input
+                    type="text"
+                    id="human-clue-input"
+                    placeholder="Escribe 1 palabra pista..."
+                    maxlength="32"
+                    autocomplete="off"
+                    required
+                  />
+                  <button type="submit" class="btn-primary">🃏 Poner Pista</button>
+                </form>
+              </div>
+
+              <!-- 2. Comentario de Debate del Humano -->
+              <div id="panel-human-debate" class="action-card action-active hidden">
+                <h3>🗣️ Debate: ¿De quién sospechas?</h3>
+                <form id="human-debate-form" class="inline-action-form">
+                  <input
+                    type="text"
+                    id="human-debate-input"
+                    placeholder="Ej: Kiko dijo una palabra muy rara..."
+                    maxlength="100"
+                    autocomplete="off"
+                  />
+                  <button type="submit" class="btn-primary">Acusar</button>
+                  <button type="button" id="btn-skip-debate" class="btn-secondary">
+                    Votar ya →
+                  </button>
+                </form>
+              </div>
+
+              <!-- 3. Aviso de Votación -->
+              <div id="panel-voting-prompt" class="action-card voting-highlight hidden">
+                <h3>🗳️ ¡HORA DE VOTAR! Haz clic arriba sobre el monstruo sospechoso</h3>
+                <p>Pulsa directamente sobre <strong>Buba</strong>, <strong>Kiko</strong>, <strong>Momo</strong> o <strong>Zorg</strong> para acusarle.</p>
+              </div>
+
+              <!-- 4. Panel de Eliminación de Ronda (Cuando expulsan a un Inocente y el Intruso sobrevive) -->
+              <div id="panel-round-elimination" class="action-card elimination-card hidden">
+                <div class="summary-header-row">
+                  <h3 id="elimination-title">😱 ¡Un Inocente ha sido expulsado!</h3>
+                  <div class="elimination-actions">
+                    <button type="button" id="btn-resolve-match-now" class="btn-resolve-now hidden">
+                      ⚡ Resolver la Partida
+                    </button>
+                    <button type="button" id="btn-next-survival-round" class="btn-primary">
+                      🔥 Siguiente Ronda →
+                    </button>
+                  </div>
+                </div>
+                <p id="elimination-body"></p>
+              </div>
+
+              <!-- 5. Última Oportunidad del Humano -->
+              <div id="panel-human-last-chance" class="action-card role-intruder hidden">
+                <h3>⚡ ¡ÚLTIMA OPORTUNIDAD! Te han pillado, pero si adivinas la palabra ganas:</h3>
+                <form id="human-last-chance-form" class="inline-action-form">
+                  <input
+                    type="text"
+                    id="human-last-chance-input"
+                    placeholder="¿Cuál era la palabra secreta?"
+                    maxlength="40"
+                    autocomplete="off"
+                    required
+                  />
+                  <button type="submit" class="btn-primary">¡Apostar Palabra!</button>
+                </form>
+              </div>
+
+              <!-- 6. Gran Celebración y Resumen Final de Partida -->
+              <div id="panel-match-summary" class="action-card summary-card hidden">
+                <div class="summary-header-row">
+                  <div class="finale-title-block">
+                    <span id="finale-outcome-pill" class="finale-outcome-pill">🏆 ¡VICTORIA!</span>
+                    <h3 id="summary-title">Resultado de la Partida</h3>
+                  </div>
+                  <div class="finale-header-meta">
+                    <div id="finale-reveal-strip" class="finale-reveal-strip"></div>
+                    <button type="button" id="btn-play-again-summary" class="btn-primary btn-play-again-glow">
+                      🎲 Jugar Otra Partida
+                    </button>
+                  </div>
+                </div>
+                <p id="summary-body"></p>
+                <ul id="summary-votes" class="summary-votes-list"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL LATERAL DERECHO: MARCADOR Y CRÓNICA DE LA MESA -->
+    <aside class="sidebar-panel">
+      <div class="score-box">
+        <div class="score-stat">
+          <span class="score-num" id="score-human">0</span>
+          <span class="score-label">Tus Victorias</span>
+        </div>
+        <div class="score-stat">
+          <span class="score-num" id="score-ai">0</span>
+          <span class="score-label">Victorias IA</span>
+        </div>
+        <div class="score-stat">
+          <span class="score-num" id="score-matches">0</span>
+          <span class="score-label">Partidas</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>📋 Crónica de la Mesa</h2>
+        <p class="sidebar-hint">
+          Turnos: <span id="turn-order-strip" class="turn-order-inline">Pulsa Jugar</span>
+        </p>
+        <div id="public-clues-list" class="public-clues-list"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="js/words.js"></script>
+  <script src="js/sound_engine.js"></script>
+  <script src="js/animator.js"></script>
+  <script src="js/github_keys.js"></script>
+  <script src="js/ai_engine.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

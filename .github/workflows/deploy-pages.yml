@@ -1,0 +1,54 @@
+name: Desplegar El Juego del Intruso en GitHub Pages
+
+on:
+  push:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Codificar GEMINI_API_KEY desde GitHub Secrets en js/github_keys.js
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python3 - << 'EOF'
+          import os, json
+          key = os.environ.get("GEMINI_KEY", "").strip()
+          if key:
+              vault = [ord(ch) ^ ((idx * 31 + 73) & 0xFF) for idx, ch in enumerate(key)]
+              with open("js/github_keys.js", "w", encoding="utf-8") as f:
+                  f.write(f"window.__INTRUSO_VAULT__ = {json.dumps(vault)};\n")
+              print("GEMINI_API_KEY codificada correctamente en js/github_keys.js")
+          else:
+              print("Aviso: secrets.GEMINI_API_KEY está vacío.")
+          EOF
+          rm -rf .env assets/raw scripts
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir artefacto estático para GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,12 @@
+# Variables de entorno y claves locales (NUNCA subir a GitHub)
+.env
+.env.local
+
+# Entornos virtuales y cache de Python
+.venv/
+__pycache__/
+*.pyc
+
+# Logs y temporales
+*.log
+tmp/
